@@ -1,0 +1,406 @@
+
+package hotel;
+import java.util.Scanner;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+class Hotel1 {
+
+    static Scanner in = new Scanner(System.in);
+    static int size = 9;
+    String dateIn;
+    String dateOut;
+    String customerName;
+    String phoneNumber;
+    String password;
+    static boolean[] roomAvailable = new boolean[size];
+    static String[][] oldGuest = new String[100][5];
+    static int[] timeOut = new int[size];
+    static int[] guestTotalPrice = new int[size];
+    static void print(int[] roomPrice) {
+        System.out.println("Single room on the first floor .\n The price is : " + roomPrice[0] + "  click 1 ");
+        System.out.println("Single room on the Secand floor.\n The price is : " + roomPrice[1] + "  click 2 ");
+        System.out.println("Double room on the secand floor \n  The price is : " + roomPrice[2] + "  click  3 ");
+        System.out.println("Double room on the secand floor"
+                + " \n Overlooking the sea.  The price is : " + roomPrice[3] + "  click  4 ");
+        System.out.println("Double room on the third floor  "
+                + "\n Overlooking the sea. The price is : " + roomPrice[4] + "  click  5 ");
+        System.out.println("medium suite tow rooms on the secand floor "
+                + "\n Overlooking the sea.  The price is : " + roomPrice[5] + "  click  6 ");
+        System.out.println("medium suite tow rooms on the secand floor "
+                + "\n Overlooking the sea.  The price is : " + roomPrice[6] + "  click  7 ");
+        System.out.println("big suite tow rooms on the third floor "
+                + "\n Overlooking the sea.  The price is : " + roomPrice[7] + "  click  8 ");
+        System.out.println("big suite tow rooms on the third floor "
+                + "\n Overlooking the sea.  The price is : " + roomPrice[8] + "  click  9 ");
+    }
+
+    static Hotel1[] checkIn(Hotel1[] hotel, int RoomPrice[]) {
+        String information[] = new String[4];
+        System.out.println("Enter room or suite number");
+        int roomNumber = in.nextInt();
+        if (roomNumber > size) {
+            System.out.println("Dont have a room with this number");
+        } else {
+            all:{
+                if (roomAvailable[roomNumber - 1] == false) {
+                    for (int i = 0; i < information.length; i++) {
+                        if (i == 0) {
+                            System.out.println("Enter the account number ");
+                        }
+                        if (i == 1) {
+                            System.out.println("Enter the password ");
+                        }
+                        if (i == 2) {
+                            System.out.println("Enter the name");
+                        }
+                        if (i == 3) {
+                            System.out.println("Enter  phone number ");
+                        }
+                        information[i] = in.next();
+                    }
+
+                } else if (roomAvailable[roomNumber - 1] == true) {
+                    System.out.println("The room is not available ");
+                    break all;
+
+                }
+                System.out.println("To continue click 1 \n To cancel click  any number");
+                int chose1 = in.nextInt();
+                if (chose1 == 1) {
+                    LocalDateTime currentDateTime = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                    String formattedDateTime = currentDateTime.format(formatter);
+                    for (int i = 0; i < size; i++) {
+                        if (roomNumber == i + 1) {
+                            hotel[i] = new Hotel1();
+                            roomAvailable[i] = true;
+                            System.out.println("successfully \n The price is :" + RoomPrice[i]);
+                            guestTotalPrice[i] += RoomPrice[i];
+                            hotel[i].dateIn = formattedDateTime;
+                            hotel[i].password = information[1];
+                            hotel[i].customerName = information[2];
+                            hotel[i].phoneNumber = information[3];
+                            System.out.println("تاريخ الحجز : " + hotel[i].dateIn);
+                            return hotel;
+                        }
+                    }
+                } else {
+                    System.out.println("The operation has cancel");
+                    break all;
+                }
+            }
+        }
+        return hotel;
+    }
+
+    static void checkOut(Hotel1[] hotel) {
+        LocalTime currentTime = LocalTime.now();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String formattedDateTime = currentDateTime.format(formatter);
+        System.out.println("Enter the number of room you want to check out : ");
+        int roomNumber = in.nextInt();
+        for (int i = 0; i < size; i++) {
+            if (roomNumber == i + 1 && roomAvailable[i] == true) {
+                roomAvailable[i] = false;
+                System.out.println("successfully ");
+                hotel[i].dateOut = formattedDateTime;
+                System.out.println("The number of room was " + (i + 1));
+                System.out.println("guest name : " + hotel[i].customerName);
+                System.out.println("guest phone number : " + hotel[i].phoneNumber);
+                System.out.println("Total price : " + guestTotalPrice[i]);
+                System.out.println("reservation date : " + hotel[i].dateIn);
+                System.out.println("date out : " + hotel[i].dateOut);
+                timeOut[i] = currentTime.getMinute();
+                String roomNum = String.valueOf(roomNumber);
+                for (int j = 0; j < oldGuest.length; j++) {
+                    if (oldGuest[j][0] == null) {
+                        oldGuest[j][0] = hotel[i].customerName;
+                        hotel[i].customerName = null;
+                        oldGuest[j][1] = hotel[i].phoneNumber;
+                        hotel[i].phoneNumber = null;
+                        oldGuest[j][2] = roomNum;
+                        oldGuest[j][3] = hotel[i].dateIn;
+                        hotel[i].dateIn = null;
+                        oldGuest[j][4] = hotel[i].dateOut;
+                        hotel[i].dateOut = null;
+                    }
+                    break;
+                }
+            } else if (roomNumber == i + 1 && roomAvailable[i] == false) {
+                System.out.println("The room is not reserved yet");
+            }
+        }
+    }
+
+    static void roomAvailable(Hotel1[] hotel) {
+        for (int i = 0; i < size; i++) {
+            if (roomAvailable[i] == true) {
+                System.out.println("Room number " + (i + 1) + " is not avilable");
+            } else {
+                System.out.println("Room number " + (i + 1) + " is avilable");
+            }
+        }
+    }
+    static void guestInformation(Hotel1[] hotel) {
+        for (int k = 0; k < size; k++) {
+            if (roomAvailable[k] == true) {
+                System.out.println("room number " + (k + 1));
+                System.out.println("guest name : " + hotel[k].customerName);
+                System.out.println("guest phone number : " + hotel[k].phoneNumber);
+                System.out.println("reservation date : " + hotel[k].dateIn);
+            }
+        }
+    }
+
+    static void roomStatus(Hotel1[] hotel) {
+        LocalTime currentTime = LocalTime.now();
+        for (int k = 0; k < size; k++) {
+            if (currentTime.getMinute() - timeOut[k] < 30 && timeOut[k] - currentTime.getMinute() > -30 && currentTime.getMinute() - timeOut[k] != 0 && timeOut[k] != 0) {
+                System.out.println(" room number " + (k + 1) + " is cleaning");
+            } else {
+                System.out.println(" room number " + (k + 1) + " is clean");
+            }
+        }
+    }
+
+    public static void oldGuest() {
+        if (oldGuest[0][0] != null) {
+            System.out.println("Name \t    Phone Number    Room Number\t\t\tDate In    \t\t\tDate Out");
+            all:
+            for (int j = 0; j < oldGuest.length; j++) {
+                for (int k = 0; k < oldGuest[j].length; k++) {
+                    if (oldGuest[j][k] != null) {
+                        System.out.print(oldGuest[j][k] + "\t\t");
+                    } else {
+                        break all;
+                    }
+                }
+                System.out.println("");
+            }
+        } else {
+            System.out.println("There is no old guest");
+        }
+    }
+}
+
+public class HOTEL {
+    static Scanner in = new Scanner(System.in);
+    static int size = 9;
+    static int size2 = 20;
+    static Employees[] employee = new Employees[size2];
+    public static void main(String[] args) {
+        Hotel1[] hotel = new Hotel1[size];
+        int choice;
+        float dailyRevenue = 0;
+        int[] roomPrice = new int[]{25000, 30000, 35000, 40000, 50000, 90000, 90000, 120000, 120000};
+        System.out.println("WELCOM TO STARS HOTEL");
+        do {
+            System.out.println(" 1- For Reservations");
+            System.out.println(" 2- Room Availability \n 3- Daily revenue \n 4- Room status");
+            System.out.println(" 5- Guest Information \n 6- Employee \n 7-Check out");
+            System.out.println(" 8- Old guest \n 9- Exite");
+            choice = in.nextInt();
+            switch (choice) {
+                case 1:
+                    Hotel1.print(roomPrice);
+                    Hotel1.checkIn(hotel, roomPrice);
+                    break;
+                case 2:
+                    Hotel1.roomAvailable(hotel);
+                    break;
+                case 3:
+                    dailyRevenue = 0;
+                    for (int x = 0; x < size; x++) {
+                        dailyRevenue += Hotel1.guestTotalPrice[x];
+                    }
+                    for (int k = 0; k < size2; k++) {
+                        dailyRevenue -= Employees.dailyWithdrawal[k];
+                    }
+                    System.out.println("The daily revenue is : " + dailyRevenue);
+                    break;
+                case 4:
+                    Hotel1.roomStatus(hotel);
+                    break;
+                case 5:
+                    Hotel1.guestInformation(hotel);
+                    break;    
+                case 6 :
+                    do {
+                        Employees.printChoices();
+                        choice = in.nextInt();
+                        switch (choice) {
+                            case 1:
+                                 Employees.addEmployee(employee);
+                                break;
+                            case 2:
+                                Employees.removeEmployee(employee);
+                                break;
+                            case 3:
+                                Employees.search(employee);
+                                break;
+                            case 4:
+                                Employees.employeeSalary(employee);
+                                break;
+                            case 5:
+                                Employees.employeeInformation(employee);
+                                break;
+                            case 6:
+                                break;
+                            default:
+                                System.out.println("Can not undrestand your choice try again");
+                                break;
+                        }
+                    } while (choice != 6);
+                    break;
+                case 7:
+                    Hotel1.checkOut(hotel);
+                    break;
+                case 8:
+                    Hotel1.oldGuest();
+                    break;
+                case 9:
+                    break;
+                default:
+                    System.out.println("Can not undrestand your choice try again");
+                    break;
+            }
+        } while (choice != 9);
+    }
+}
+
+class Employees {
+
+    static Scanner in = new Scanner(System.in);
+    static int size2 = 20;
+    boolean salaryAvailable;
+    int employeePassword;
+    String employeePhoneNum;
+    float employeeSalary;
+    String employeeName;
+    String employeeJopName;
+    static float dailyWithdrawal[] = new float[size2];
+
+    public static Employees[] addEmployee(Employees[] employee) {
+        for (int e = 0; e < size2; e++) {
+            if (employee[e] == null) {
+                employee[e] = new Employees();
+                System.out.println("Enter employee name " + (e + 1));
+                employee[e].employeeName = in.next();
+                System.out.println("Enter employee password " + (e + 1));
+                employee[e].employeePassword = in.nextInt();
+                System.out.println("Enter employee phone number " + (e + 1));
+                employee[e].employeePhoneNum = in.next();
+                System.out.println("Enter employee job " + (e + 1));
+                employee[e].employeeJopName = in.next();
+                System.out.println("Enter the daily salary " + (e + 1));
+                employee[e].employeeSalary = in.nextFloat();
+                System.out.println("successfully");
+                break;
+            }
+        }
+        return employee;
+    }
+
+    public static void removeEmployee(Employees[] employee) {
+        boolean t = false;
+        System.out.println("Enter employee name");
+        String name = in.next();
+        for (int i = 0; i < size2; i++) {
+            if (employee[i] != null && name.equals(employee[i].employeeName)) {
+                employee[i] = null;
+                t = true;
+                break;
+            }
+        }
+        if (t) {
+            System.out.println("successfully");
+        } else {
+            System.out.println("There is not employee with this name");
+        }
+    }
+
+    public static void search(Employees[] employee) {
+        boolean t = false;
+        System.out.println("Enter employee name : ");
+        String name = in.next();
+        for (int i = 0; i < size2; i++) {
+            if (employee[i] != null && name.equals(employee[i].employeeName)) {
+                t = true;
+                break;
+            }
+        }
+        if (t) {
+            System.out.println("Name found ");
+        } else {
+            System.out.println("Name not found");
+        }
+    }
+
+    public static void employeeInformation(Employees[] employee) {
+        boolean t = false;
+        for (int i = 0; i < size2; i++) {
+            if (employee[i] != null && employee[i].employeePassword != 0) {
+                System.out.println("Employee number " + (i + 1));
+                System.out.println("Employee name : " + employee[i].employeeName);
+                System.out.println("Employee password : " + employee[i].employeePassword);
+                System.out.println("Employee phone number : " + employee[i].employeePhoneNum);
+                System.out.println("Employee job : " + employee[i].employeeJopName);
+                System.out.println("Employee salary : " + employee[i].employeeSalary);
+                t = true;
+            }
+        }
+        if (t == false) {
+            System.out.println("There is no employee to show.");
+        }
+    }
+
+    public static void employeeSalary(Employees[] employee) {
+        boolean t = false;
+        System.out.println("Enter employee name :");
+        String name = in.next();
+        all:
+        for (int i = 0; i < size2; i++) {
+            if (employee[i] != null && employee[i].employeeName.equals(name)) {
+                t = true;
+                System.out.println("Enter your password :");
+                for (int j = 0; j < 3; j++) {
+                    int password1 = in.nextInt();
+                    if (password1 == employee[i].employeePassword) {
+                        if (employee[i].salaryAvailable == false) {
+                            System.out.println("successfully");
+                            System.out.println("your cash is " + employee[i].employeeSalary);
+                            dailyWithdrawal[i] = employee[i].employeeSalary;
+                            employee[i].salaryAvailable = true;
+                            break all;
+                        } else {
+                            System.out.println("The employee " + name + " has already get his salary");
+                            break all;
+                        }
+                    } else if (j < 2) {
+                        System.out.println("Wrong password , try again :");
+                    } else {
+                        System.out.println("You are exceeded the limit  ");
+                        break all;
+                    }
+                }
+            }
+
+        }
+        if (t == false) {
+            System.out.println("There is no employee with this name");
+        }
+
+    }
+ static void printChoices() {
+        System.out.println("1- add employee");
+        System.out.println("2- Remove employee");
+        System.out.println("3- Search for employee");
+        System.out.println("4- Paying employee salaries");
+        System.out.println("5- Employee information");
+        System.out.println("6- To get out");
+    }
+}
+
